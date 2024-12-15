@@ -15,32 +15,31 @@ library(dplyr)
 # That's why the implementation below prepares the individual sets first, merges them, and then calculates the summary
 ###
 
-# path variables
-base_dir = "~/Downloads/UCI HAR Dataset/"
-target_file = "~/Downloads/tidy_data_set.txt"
+# a path where the script will dump the data set (`summary_table`) to
+data_set_output_file = "~/Downloads/tidy_data_set.txt"
 
 # read the features
-features <- fread(paste(base_dir, "features.txt", sep=""))[[2]]
+features <- fread("features.txt")[[2]]
 std_mean_features <- grep("-std|-mean", features, value = TRUE)
 
 # read the labels
-labels <- fread(paste(base_dir, "activity_labels.txt", sep=""), col.names = c ("key", "activity"))
+labels <- fread("activity_labels.txt", col.names = c ("key", "activity"))
 
 # read and transform the test data set
-test_table <- fread(paste(base_dir, "test/X_test.txt", sep=""), col.names = features)[, .SD, .SDcols = std_mean_features] %>%
+test_table <- fread("test/X_test.txt", col.names = features)[, .SD, .SDcols = std_mean_features] %>%
   # join the label data and add the activity column
-  cbind(fread(paste(base_dir, "test/Y_test.txt", sep=""))[labels, on=.(V1 = key)][,.(activity)]) %>%
+  cbind(fread("test/Y_test.txt") %>% inner_join(labels, join_by(V1 == key)) %>% select(activity)) %>%
   # add the subject column
-  cbind(fread(paste(base_dir, "test/subject_test.txt", sep=""), col.names = "subject")) %>%
+  cbind(fread("test/subject_test.txt", col.names = "subject")) %>%
   # re-order and make `activity` and `subject` the first columns 
   select(c("activity", "subject"), everything())
 
 # read and transform the training data set
-train_table <- fread(paste(base_dir, "train/X_train.txt", sep=""), col.names = features)[, .SD, .SDcols = std_mean_features] %>%
+train_table <- fread("train/X_train.txt", col.names = features)[, .SD, .SDcols = std_mean_features] %>%
   # join the label data and add the activity column
-  cbind(fread(paste(base_dir, "train/Y_train.txt", sep=""))[labels, on=.(V1 = key)][,.(activity)]) %>%
+  cbind(fread("train/Y_train.txt") %>% inner_join(labels, join_by(V1 == key)) %>% select(activity)) %>%
   # add the subject column
-  cbind(fread(paste(base_dir, "train/subject_train.txt", sep=""), col.names = "subject")) %>%
+  cbind(fread("train/subject_train.txt", col.names = "subject")) %>%
   # re-order and make `activity` and `subject` the first columns
   select(c("activity", "subject"), everything())
 
@@ -48,4 +47,4 @@ train_table <- fread(paste(base_dir, "train/X_train.txt", sep=""), col.names = f
 summary_table <- rbind(test_table, train_table)[, lapply(.SD, mean, na.rm=TRUE), by=.(activity,subject)]
 
 # write the summary table into file 
-write.table(summary_table, file=target_file, row.name=FALSE)
+write.table(summary_table, file=data_set_output_file, row.name=FALSE)
