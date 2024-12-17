@@ -18,9 +18,9 @@ the `run_analysis.R` expects the input data set to be available in the working d
 the input data set is [the one](https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip) described in the #Intro section -- it should be extracted.
 
 # `run_analysis.R` steps
-1. read the features and select the mean and standard deviation measurements
-2. read the labels
-3. read the test data set, keep only mean and standard deviation measurement, join the labels and subject data
-4. read the train data set, keep only mean and standard deviation measurement, join the labels and subject data
-5. merge the test and train data sets, grouping the data by activity and subject, calculating the average (`mean`) for each measurement per group
-6. write the data table from the previous step into a file (hard-coded inao the variable `data_set_output_file`)
+1. Merges the training (`training_data`) and the test sets (`test_data`) to create one data set (`merged_data`).
+2. Extracts only the measurements on the mean and standard deviation for each measurement (`merged_data_std_mean`). 
+3. Uses descriptive activity names to name the activities in the data set
+4. Appropriately labels the data set with descriptive variable names
+5. merge the test and train data sets, grouping the data by activity and subject, calculating the average (`mean`) for each measurement per group (`tidy_data`)
+6. write the data table from the previous step into a file (hard-coded into the variable `tidy_data_output_file`)
